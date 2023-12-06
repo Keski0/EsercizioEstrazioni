@@ -1,7 +1,9 @@
 package it.betacom.esercizioestrazione;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -15,10 +17,10 @@ import java.util.Scanner;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 
 /**
  * Hello world!
@@ -146,14 +148,14 @@ public class App
 								+ "GROUP BY id_partecipante, p.nome, p.sede "
 								+ "ORDER BY numero_estrazioni DESC;");
 						
-						String nomeDocumento;
-						PdfDocument pdf;
-						
 						try
 						{
-							nomeDocumento = "./Estrazioni.pdf";
-							pdf = new PdfDocument(new PdfWriter(nomeDocumento));
-							Document document = new Document(pdf);
+							Document document = new Document();
+							FileOutputStream outputStream = new FileOutputStream(new File("./Estrazioni.pdf"));
+							
+							PdfWriter.getInstance(document, outputStream);
+							
+							document.open();
 							
 							String riga;
 							
@@ -176,13 +178,14 @@ public class App
 							}
 							
 							document.close();
+							outputStream.close();
 							
 							System.out.println("|  Documento PDF delle estrazioni creato con successo  |");
 							logger.info("Documento PDF delle estrazioni creato.");
 							
-						} catch (FileNotFoundException e) {
-							System.out.println("Errore nella ricerca del documento PDF: " + e.getMessage());
-							logger.error("Errore nella ricerca del documento PDF: " + e.getMessage());
+						} catch (DocumentException e) {
+							System.out.println("Errore nell'apertura del documento PDF: " + e.getMessage());
+							logger.error("Errore nell'apertura del documento PDF: " + e.getMessage());
 						}
 						
 						break;
